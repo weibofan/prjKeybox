@@ -1,6 +1,10 @@
 # prjKeybox
 钥匙箱管理系统 laravel+dhtmlx
 
+访问主页：http://139.196.213.122/
+
+文件说明：
+
 prjKeybox：网页端工程代码
 
 +---app
