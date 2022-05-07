@@ -78,19 +78,19 @@ import {
             };
             var data=[
                 {
-                    title:"张三",
+                    title:"徐珑珊",
                     text:"项目硬件搭建",
                     type:"组长",
                     avatar:"https://snippet.dhtmlx.com/codebase/data/common/img/02/avatar_14.jpg"
                 },
                 {
-                    title:"李四",
+                    title:"张楠",
                     text:"商业计划书编制",
                     type:"组员",
                     avatar:"https://snippet.dhtmlx.com/codebase/data/common/img/02/avatar_11.jpg"
                 },
                 {
-                    title:"王五",
+                    title:"魏博帆",
                     text:"项目软件开发",
                     type:"组员",
                     avatar:"https://snippet.dhtmlx.com/codebase/data/common/img/02/avatar_13.jpg"

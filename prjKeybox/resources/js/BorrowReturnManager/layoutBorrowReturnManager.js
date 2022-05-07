@@ -59,6 +59,8 @@ var LayoutBorrowReturnManager = ({
     dataformFormViewHookKeysModify: null,
     hooks:null,
     hookkey:null,
+    windowlogin:null,
+    formlogin:null,
     init(){
         this.layoutBorrowReturnManager = this.layoutBorrowReturnManager_create();
         
@@ -97,7 +99,7 @@ var LayoutBorrowReturnManager = ({
         this.tabbarHookKeys.getCell("gridform").attach(this.layoutGridViewHookKeys);
         this.layoutGridViewHookKeys.getCell("toolbarGridViewHookKeys").attach(this.toolbarGridViewHookKeys);
         this.layoutGridViewHookKeys.getCell("gridHookKeys").attach(this.gridHookKeys);
-        this.tabbarHookKeys.getCell("imgform").attach(this.layoutFormViewHookKeys);
+        // this.tabbarHookKeys.getCell("imgform").attach(this.layoutFormViewHookKeys);
         this.layoutFormViewHookKeys.getCell("toolbarFormViewHookKeys").attach(this.toolbarFormViewHookKeys);
         return this.layoutBorrowReturnManager;
     },
@@ -201,7 +203,7 @@ var LayoutBorrowReturnManager = ({
         var mytree = this.treeKeyboxes;
         var data = mytree.data;
         var that = this;
-        AjaxDHX.get("/borrowreturntreefirst")
+        AjaxDHX.get("/borrowreturntreefirst",{token:localStorage.getItem("token")})
           .then(function (res) {
             // console.log('tree');
             // console.log(res);
@@ -247,7 +249,7 @@ var LayoutBorrowReturnManager = ({
       tabbarHookKeys_create() {
         var views = [
           { tab: "表格形式", id: "gridform" },
-          { tab: "图表形式", id: "imgform" },
+          // { tab: "图表形式", id: "imgform" },
   
         ];
         var mytabbar = new TabbarDHX(null, {
@@ -328,10 +330,17 @@ var LayoutBorrowReturnManager = ({
                 keystate:content.keystate,
                 keyid:content.keyid,
                 keyuid:content.keyuid,
-                keyisenable:content.keyisenable
+                keyisenable:content.keyisenable,
+                token:localStorage.getItem("token")
               })
               .then(function (response){
+                
                 switch(response.type){
+                  case 'login':
+                    that.windowlogin=this.windowlogin_create();
+                     that.windowlogin_event();
+                    that.windowlogin_reload();
+                    break;
                   case 'success':
                     that.gridHookKeys_reload();
                     MessageDHX({
@@ -504,9 +513,15 @@ var LayoutBorrowReturnManager = ({
           
           AjaxDHX.get("/borrowreturngrid",{
             keyboxid:keyboxid,
+            token:localStorage.getItem("token")
           })
           .then(function(res){
             switch(res.type){
+              case 'login':
+                that.windowlogin=this.windowlogin_create();
+                that.windowlogin_event();
+                that.windowlogin_reload();
+                break;
               case "success":
                 // console.log('suc')
                 // console.log(res.data)
@@ -539,9 +554,14 @@ var LayoutBorrowReturnManager = ({
       windowGridViewHookKeysInsert_reload() {
         var that = this;
         //某个钥匙箱下可借的钥匙
-        AjaxDHX.get("/borrowreturnforminsertkey",{keyboxid:this.treeKeyboxes.selection['_selected'].split("_")[1]})
+        AjaxDHX.get("/borrowreturnforminsertkey",{token:localStorage.getItem("token"),keyboxid:this.treeKeyboxes.selection['_selected'].split("_")[1]})
         .then(function(res){
           switch(res.type){
+            case 'login':
+                that.windowlogin=this.windowlogin_create();
+                that.windowlogin_event();
+                that.windowlogin_reload();
+                break;
             case "success":
               that.hooks = res.data.hooks;
               that.hookkey = res.data.hookkey;
@@ -568,8 +588,8 @@ var LayoutBorrowReturnManager = ({
         
       },
       formGridViewHookKeysInsert_create(hooks) {
-        console.log('lll')
-        console.log(hooks)
+        //console.log('lll')
+        //console.log(hooks)
         if(hooks.length>0){
           // console.log(hooks);
           var myform = {
@@ -600,8 +620,8 @@ var LayoutBorrowReturnManager = ({
                 hidden: true,
               },
               {
-                id: "_token",
-                name: "_token",
+                id: "token",
+                name: "token",
                 type: "input",
                 hidden: true,
               },
@@ -628,17 +648,22 @@ var LayoutBorrowReturnManager = ({
         myform.events.on("change",function(){
           myform.getItem("keyid").setValue(that.hookkey[myform.getItem("hookid").getValue()]['keyname']);
           myform.getItem("kid").setValue(that.hookkey[myform.getItem("hookid").getValue()]['keyid']);
-          myform.getItem("_token").setValue(that.getCSRF());
+          myform.getItem("token").setValue(localStorage.getItem("token"));
 
         });
         myform.getItem("ok").events.on("click", function (ev) {
-          
+          myform.getItem("token").setValue(localStorage.getItem("token"));
           myform
             .send("/borrowreturninsertkey", "POST")
             .then(function (response) {
               var res = JSON.parse(response);
               // console.log(res)
               switch(res.msgid){
+                case 501:
+                  that.windowlogin=this.windowlogin_create();
+                  that.windowlogin_event();
+                  that.windowlogin_reload();
+                  break;
                 case 200:
                   that.gridHookKeys_reload();
                   MessageDHX({
@@ -727,6 +752,92 @@ var LayoutBorrowReturnManager = ({
       getCSRF() {
         return document.head.querySelector('meta[name="X-CSRF-TOKEN"]').content;
       },
+      windowlogin_create(){
+        var mywindow = new WindowDHX({
+            width: 500,
+            height: 500,
+            title: "登录",
+            modal: true,
+        });
+        return mywindow;
+    },
+    windowlogin_event(){},
+    windowlogin_reload(){
+      this.formlogin=this.formlogin_create();
+      this.formlogin_event();
+      this.formlogin_reload();
+      this.windowlogin.attach(this.formlogin);
+      this.windowlogin.show();
+    },
+    formlogin_create(){
+        var that = this;
+        var myform = {
+            css: "dhx_widget--bordered dhx_widget--bg_white",
+            rows: [
+                {
+                    type: "input",
+                    id: "realname",
+                    label: "账号",
+                    placeholder: "输入校园卡号或员工卡号",
+                    required: true,
+                    helpMessage: "",
+                    errorMessage: "此项必填！",
+                },
+
+                {
+                    type: "input",
+                    inputType: "password",
+                    id: "password",
+                    label: "密码",
+                    required: true,
+                    helpMessage: "",
+                    errorMessage: "此项必填！",
+                },
+
+                {
+                    type: "button",
+                    id: "ok",
+                    text: "登录",
+                    size: "medium",
+                    view: "flat",
+                    full: true,
+                    color: "primary",
+                },
+
+            ],
+        };
+
+        var myform = new FormDHX(null,myform);
+        return myform;
+    },
+    formlogin_event(){
+      var myform = this.formlogin;
+      var that = this;
+      myform.getItem("ok").events.on("click",function(ev){
+        
+        myform.send("/auth/login","POST")
+        .then(function (res){
+          res=JSON.parse(res);
+          // console.log(res);
+          switch(res.type){
+            case "error":
+              AlertDHX({
+                header: "错误",
+                text: res.msg,
+                buttons: ["关闭"],
+              });
+              break;
+            case "success":
+              //放入本地缓存
+              
+              localStorage.setItem('token',res.data.token);
+              that.windowlogin.destructor();
+              break;
+          }
+        })
+      })
+    },
+    formlogin_reload(){},
       
 });
 var layoutBorrowReturnManager = LayoutBorrowReturnManager.init();

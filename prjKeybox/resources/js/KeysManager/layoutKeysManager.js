@@ -173,7 +173,7 @@ var LayoutKeysManager = ({
         var mytree = this.treewarehouse;
         var data = mytree.data;
         var that=this;
-        AjaxDHX.get("/KeyWarehouse/getree")
+        AjaxDHX.get("/KeyWarehouse/getree",{token:localStorage.getItem("token")})
         .then(function (res){
           that.datatreewarehouse.parse(res.data);
           var tagid=false;
@@ -244,7 +244,7 @@ var LayoutKeysManager = ({
               else{
                 content=content.row;
                 that.gridwarehouse.selection.removeCell();
-                AjaxDHX.get("/KeyWarehouse/enableKey",{keyid:content.id,adminuid:content.adminuid})
+                AjaxDHX.get("/KeyWarehouse/enableKey",{keyid:content.id,adminuid:content.adminuid,token:localStorage.getItem("token")})
                 .then(function (res){
                   switch(res.type){
                     case "success":
@@ -471,7 +471,8 @@ var LayoutKeysManager = ({
         {
           var orgid=this.treewarehouse.selection['_selected'].split("_")[1];
           AjaxDHX.get("/KeyWarehouse/getgrid",{
-            orgid:orgid
+            orgid:orgid,
+            token:localStorage.getItem("token")
           })
           .then(function(res){
             switch(res.type){
@@ -491,7 +492,7 @@ var LayoutKeysManager = ({
       },
       tryinsert(){
         var that=this;
-        AjaxDHX.get("/KeyWarehouse/tryinsertkey",{orgid:that.orgid.toString().split('_')[1]})
+        AjaxDHX.get("/KeyWarehouse/tryinsertkey",{orgid:that.orgid.toString().split('_')[1],token:localStorage.getItem("token")})
         .then(function(res){
           switch(res.type){
             case "error":
@@ -576,6 +577,12 @@ var LayoutKeysManager = ({
               type: "input",
               hidden: true,
             },
+            {
+              id: "token",
+              name: "token",
+              type: "input",
+              hidden: true,
+            },
           ],
         };
         
@@ -587,6 +594,7 @@ var LayoutKeysManager = ({
         var that=this;
         myform.getItem("ok").events.on("click",function(ev){
           myform.getItem("orgid").setValue(that.orgid.toString().split('_')[1]);
+          myform.getItem("token").setValue(localStorage.getItem("token"));
           myform.send("/KeyWarehouse/addkey","POST")
           .then(function (res){
             res=JSON.parse(res);
@@ -613,7 +621,7 @@ var LayoutKeysManager = ({
       formgridinsert_reload(){},
       trymodify(){
         var that=this;
-        AjaxDHX.get("/KeyWarehouse/tryinsertkey",{orgid:that.orgid.toString().split('_')[1]})
+        AjaxDHX.get("/KeyWarehouse/tryinsertkey",{token:localStorage.getItem("token"),orgid:that.orgid.toString().split('_')[1]})
         .then(function(res){
           switch(res.type){
             case "error":
@@ -715,6 +723,12 @@ var LayoutKeysManager = ({
               type: "input",
               hidden: true,
             },
+            {
+              id: "token",
+              name: "token",
+              type: "input",
+              hidden: true,
+            },
           ],
         };
         
@@ -725,6 +739,7 @@ var LayoutKeysManager = ({
         var myform=this.formgridmodify;
         var that=this;
         myform.getItem("ok").events.on("click",function(ev){
+          myform.getItem("token").setValue(localStorage.getItem("token"));
           myform.send("/KeyWarehouse/modifykey","POST")
           .then(function (res){
             res=JSON.parse(res);
@@ -760,7 +775,7 @@ var LayoutKeysManager = ({
       },
       trydelete(){
         var that=this;
-        AjaxDHX.get("/KeyWarehouse/tryinsertkey",{orgid:that.orgid.toString().split('_')[1]})
+        AjaxDHX.get("/KeyWarehouse/tryinsertkey",{token:localStorage.getItem("token"),orgid:that.orgid.toString().split('_')[1]})
         .then(function(res){
           switch(res.type){
             case "error":
@@ -783,7 +798,7 @@ var LayoutKeysManager = ({
               else{
                 content=content.row;
                 that.gridwarehouse.selection.removeCell();
-                AjaxDHX.get("/KeyWarehouse/deletekey",{keyid:content.id})
+                AjaxDHX.get("/KeyWarehouse/deletekey",{token:localStorage.getItem("token"),keyid:content.id})
                 .then(function(res){
                   switch(res.type){
                     case "error":
@@ -811,7 +826,7 @@ var LayoutKeysManager = ({
       {
         var that=this;
         // console.log(obj);
-        AjaxDHX.get("/KeyWarehouse/tryhook",{adminuid:obj.adminuid,keyid:obj.id})
+        AjaxDHX.get("/KeyWarehouse/tryhook",{adminuid:obj.adminuid,keyid:obj.id,token:localStorage.getItem("token")})
         .then(function(res){
           switch(res.type){
             case "error":
@@ -840,7 +855,7 @@ var LayoutKeysManager = ({
       windowhook_event(){},
       windowhook_reload(org){
         var that=this;
-        AjaxDHX.get("/KeyWarehouse/formgethooks",{orgid:org.orgid}).then(function(res){
+        AjaxDHX.get("/KeyWarehouse/formgethooks",{orgid:org.orgid,token:localStorage.getItem("token")}).then(function(res){
           that.hooks=res;
           console.log(that.hooks);
           that.formhook=that.formhook_create();
@@ -891,6 +906,12 @@ var LayoutKeysManager = ({
               type: "input",
               hidden: true,
             },
+            {
+              id: "token",
+              name: "token",
+              type: "input",
+              hidden: true,
+            },
           ],
         };
         
@@ -901,6 +922,7 @@ var LayoutKeysManager = ({
         var myform=this.formhook;
         var that=this;
         myform.getItem("ok").events.on("click",function(ev){
+          myform.getItem("token").setValue(localStorage.getItem("token"));
           myform.send("/KeyWarehouse/addhook","POST")
           .then(function (res){
             res=JSON.parse(res);

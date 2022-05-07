@@ -24,6 +24,7 @@ import {layoutBorrowReturnManager} from "./BorrowReturnManager/layoutBorrowRetur
 import {layoutKeyboxesManager} from "./KeyboxesManager/layoutKeyboxesManager.js";
 import {layoutJournalsManager} from "./JournalsManager/layoutJournalsManager.js";
 import {layoutAboutUs} from "./AboutUs/layoutAboutUs.js";
+
 export default {
   name: "TabbarBase",
   data: () => ({
@@ -36,18 +37,32 @@ export default {
     datatoolbarauth:new TreeCollection(),
     //2
     tabbarContainer: null,//顶层tab
+      windowlogin:null,
+      formlogin:null,
   }),
   mounted() {
-    this.init();
+      localStorage.removeItem('token');
+      var info = localStorage.getItem('token');
+      
+      //缓存里没有token
+      if(info==null){
+          this.windowlogin=this.windowlogin_create();
+          this.windowlogin_event();
+          this.windowlogin_reload();
+      }
+      // this.init();
   },
   methods: {
+
     init(){
+      //console.log("init");
       this.layoutTopcontainer = this.layoutTopcontainer_create(this.$refs.reflayoutTopcontainercontainer);
       this.layoutTopcontainer_event();
       this.layoutTopcontainer_reload();
-      
       return this.layoutTopcontainer;
+
     },
+
     //0
     layoutTopcontainer_create(ref) {
       var mylayout = new LayoutDHX(ref, {
@@ -58,12 +73,12 @@ export default {
 
             rows: [
               {
-                
+
                 id: "toolbarBrand",
                 width: "100%",
               },
               {
-                
+
                 id: "toolbarauth",
                 width: "100%",
               },
@@ -131,29 +146,23 @@ export default {
           value:"xxx",
           icon:"iconfont icon-dotsvertical",
           id:"realname",
-          items:[
-            {
-              value:"前往认证系统",
-              id:"xauth"
-            },
-          ],
+          
         },
       ];
       this.datatoolbarBrand.parse(toolbardata);
-      AjaxDHX.get("/users/getinfo").then(function(res){
+      var that=this;
+      AjaxDHX.get("/auth/user",{"token":localStorage.getItem("token")}).then(function(res){
         console.log(res);
         switch(res.msgid){
           case 200:
             that.datatoolbarBrand.update("realname",{
               value:res.data.realname,
-              url:res.data.url,
             });
             break;
-          case 201:
-            that.toolbarBrand.setState({
-              realname:res.data.realname
-            });
-            MessageDHX(res.msg);
+          case 501:
+            that.windowlogin=this.windowlogin_create();
+            that.windowlogin_event();
+            that.windowlogin_reload();
             break;
         }
       })
@@ -172,16 +181,16 @@ export default {
       var that = this;
       var toolbardata = [
         {
-          value:"你的身份:"
+          value:"身份:"
         },
         {
           value:"xxx",
           id:"auth",
-          
+
         },
       ];
       this.datatoolbarauth.parse(toolbardata);
-      AjaxDHX.get("/users/auth").then(function(res){
+      AjaxDHX.get("/users/auth",{"token":localStorage.getItem("token")}).then(function(res){
         var str=null;
         if(res.length==0){
           str="游客";
@@ -226,7 +235,7 @@ export default {
           },
         ],
       });
-      
+
       return mytabbar;
     },
     tabbarContainer_event(){},
@@ -244,6 +253,93 @@ export default {
       //关于我们
       this.tabbarContainer.getCell("about").attach(layoutAboutUs);
     },
+      windowlogin_create(){
+          var mywindow = new WindowDHX({
+              width: 500,
+              height: 500,
+              title: "登录",
+              modal: true,
+          });
+          return mywindow;
+      },
+      windowlogin_event(){},
+      windowlogin_reload(){
+        this.formlogin=this.formlogin_create();
+        this.formlogin_event();
+        this.formlogin_reload();
+        this.windowlogin.attach(this.formlogin);
+        this.windowlogin.show();
+      },
+      formlogin_create(){
+          var that = this;
+          var myform = {
+              css: "dhx_widget--bordered dhx_widget--bg_white",
+              rows: [
+                  {
+                      type: "input",
+                      id: "realname",
+                      label: "账号",
+                      placeholder: "输入校园卡号或员工卡号",
+                      required: true,
+                      helpMessage: "",
+                      errorMessage: "此项必填！",
+                  },
+
+                  {
+                      type: "input",
+                      inputType: "password",
+                      id: "password",
+                      label: "密码",
+                      required: true,
+                      helpMessage: "",
+                      errorMessage: "此项必填！",
+                  },
+
+                  {
+                      type: "button",
+                      id: "ok",
+                      text: "登录",
+                      size: "medium",
+                      view: "flat",
+                      full: true,
+                      color: "primary",
+                  },
+
+              ],
+          };
+
+          var myform = new FormDHX(null,myform);
+          return myform;
+      },
+      formlogin_event(){
+        var myform = this.formlogin;
+        var that = this;
+        myform.getItem("ok").events.on("click",function(ev){
+          
+          myform.send("/auth/login","POST")
+          .then(function (res){
+            res=JSON.parse(res);
+            // console.log(res);
+            switch(res.type){
+              case "error":
+                AlertDHX({
+                  header: "错误",
+                  text: res.msg,
+                  buttons: ["关闭"],
+                });
+                break;
+              case "success":
+                //放入本地缓存
+                
+                localStorage.setItem('token',res.data.token);
+                that.windowlogin.destructor();
+                that.init();
+                break;
+            }
+          })
+        })
+      },
+      formlogin_reload(){},
   },
 };
 </script>
@@ -266,7 +362,7 @@ body {
 		justify-content: space-between;
 		height: 100%;
 	}
-  
+
 	.dhx_dataview_template_a_box {
 		background-color: transparent;
 	}
@@ -385,5 +481,5 @@ body {
 		font-size: 20px;
 		margin-left: 6px;
 	}
-  
+
 </style>

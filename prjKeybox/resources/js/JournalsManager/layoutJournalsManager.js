@@ -109,7 +109,7 @@ var LayoutJournalsManager = ({
               ],
             },
             {
-              width: "52%",
+              width: "38%",
               collapsable:true,
               header:"日志",
               rows: [
@@ -190,7 +190,7 @@ var LayoutJournalsManager = ({
       treeorgs_reload(){
         var mytree=this.treeorgs;
         var that=this;
-        AjaxDHX.get("/HookManage/gettree")
+        AjaxDHX.get("/HookManage/gettree",{token:localStorage.getItem("token")})
         .then(function (res){
           that.datatreeorgs.parse(res.data);
           var tagid=false;
@@ -256,7 +256,7 @@ var LayoutJournalsManager = ({
                 }
                 else{
                   var parent=content.row.parent.toString().split('_')[1];
-                  AjaxDHX.get("/HookManage/matchkey",{keyid:arr[0],hookid:parent})
+                  AjaxDHX.get("/HookManage/matchkey",{keyid:arr[0],hookid:parent,token:localStorage.getItem("token")})
                   .then(function (res){
                     switch(res.type){
                       case "success":
@@ -565,7 +565,7 @@ var LayoutJournalsManager = ({
         var that=this;
         if(this.treeid!=null){
           var orgid=this.treeid;
-          AjaxDHX.get("/HookManage/treegrid",{orgid:orgid})
+          AjaxDHX.get("/HookManage/treegrid",{orgid:orgid,token:localStorage.getItem("token")})
           .then(function(res){
             switch(res.type){
               case "success":
@@ -688,7 +688,8 @@ var LayoutJournalsManager = ({
           console.log(keyboxid);
           console.log(hookid);
           AjaxDHX.get("/HookManage/gridjournel",{
-            keyboxid:keyboxid,hookid:hookid
+            keyboxid:keyboxid,hookid:hookid,
+            token:localStorage.getItem("token")
           }).then(function(res){
             switch(res.type){
               case "success":

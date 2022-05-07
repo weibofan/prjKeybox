@@ -182,7 +182,7 @@ var LayoutKeyboxesManager = ({
               else{
                 content=content.row;
                 that.gridKeybox.selection.removeCell();
-                AjaxDHX.get("/KeyboxManage/enableKeybox",{keyboxid:content.keyboxid})
+                AjaxDHX.get("/KeyboxManage/enableKeybox",{keyboxid:content.keyboxid,token:localStorage.getItem("token")})
                 .then(function (res){
                   switch(res.type){
                     case "success":
@@ -468,7 +468,7 @@ var LayoutKeyboxesManager = ({
         var content = that.gridKeybox.selection.getCell().row;
         var keyboxid = content['keyboxid'];
         that.tmp_hook=keyboxid;
-        AjaxDHX.get("/KeyboxManage/GridHooks",{keyboxid:keyboxid})
+        AjaxDHX.get("/KeyboxManage/GridHooks",{keyboxid:keyboxid,token:localStorage.getItem("token")})
         .then(function (res){
           switch(res.type){
             case 'success':
@@ -604,7 +604,7 @@ var LayoutKeyboxesManager = ({
       },
       gridKeybox_reload() {
         var that = this;
-        AjaxDHX.get("/KeyboxManage/GridKeyboxes")
+        AjaxDHX.get("/KeyboxManage/GridKeyboxes",{token:localStorage.getItem("token")})
         .then(function(res){
           switch(res.type){
             case "success":
@@ -790,7 +790,7 @@ var LayoutKeyboxesManager = ({
         var that = this;
         var content = that.gridKeybox.selection.getCell().row;
         var keyboxid = content['keyboxid'];
-        AjaxDHX.get("/KeyboxManage/GridKeys",{keyboxid:keyboxid})
+        AjaxDHX.get("/KeyboxManage/GridKeys",{keyboxid:keyboxid,token:localStorage.getItem("token")})
         .then(function (res){
           switch(res.type){
             case 'success':
@@ -823,7 +823,7 @@ var LayoutKeyboxesManager = ({
       windowKeyboxesInsert_reload(){
         var that = this;
         //加载院系
-        AjaxDHX.get("/KeyboxManage/formKeyboxInsert")
+        AjaxDHX.get("/KeyboxManage/formKeyboxInsert",{token:localStorage.getItem("token")})
         .then(function(res){
           that.orgs = res;
           console.log(that.orgs);
@@ -896,8 +896,8 @@ var LayoutKeyboxesManager = ({
               color: "primary",
             },
             {
-              id: "_token",
-              name: "_token",
+              id: "token",
+              name: "token",
               type: "input",
               hidden: true,
             },
@@ -910,7 +910,7 @@ var LayoutKeyboxesManager = ({
         var myform = this.formKeyboxesInsert;
         var that = this;
         myform.getItem("ok").events.on("click",function(ev){
-          myform.getItem("_token").setValue(that.getCSRF());
+          myform.getItem("token").setValue(localStorage.getItem("token"));
           myform.send("/KeyboxManage/insertformCreateKeybox","POST")
           .then(function (res){
             res=JSON.parse(res);
@@ -940,7 +940,7 @@ var LayoutKeyboxesManager = ({
       formKeyboxesInsert_reload(){},
       tryinsertgridKeybox(){
         var that=this;
-        AjaxDHX.get("/KeyboxManage/formKeyboxTryInsert")
+        AjaxDHX.get("/KeyboxManage/formKeyboxTryInsert",{token:localStorage.getItem("token")})
         .then(function(res){
           switch(res.type){
             case "error":
@@ -961,7 +961,7 @@ var LayoutKeyboxesManager = ({
       trymodifygridKeybox(){
         var that=this;
         
-        AjaxDHX.get("/KeyboxManage/formKeyboxTryInsert")
+        AjaxDHX.get("/KeyboxManage/formKeyboxTryInsert",{token:localStorage.getItem("token")})
         .then(function(res){
           switch(res.type){
             case "error":
@@ -1006,7 +1006,7 @@ var LayoutKeyboxesManager = ({
       windowKeyboxesModify_reload(obj){
         console.log(obj);
         var that= this;
-        AjaxDHX.get("/KeyboxManage/formKeyboxInsert").then(function(res){
+        AjaxDHX.get("/KeyboxManage/formKeyboxInsert",{token:localStorage.getItem("token")}).then(function(res){
           that.orgs=res;
           that.formKeyboxesModify=that.formKeyboxesModify_create();
           that.formKeyboxesModify_event();
@@ -1077,8 +1077,8 @@ var LayoutKeyboxesManager = ({
               color: "primary",
             },
             {
-              id: "_token",
-              name: "_token",
+              id: "token",
+              name: "token",
               type: "input",
               hidden: true,
             },
@@ -1098,7 +1098,7 @@ var LayoutKeyboxesManager = ({
         var myform = this.formKeyboxesModify;
         var that = this;
         myform.getItem("ok").events.on("click",function(ev){
-          console.log('click')
+          myform.getItem("token").setValue(localStorage.getItem("token"));
           myform.send("/KeyboxManage/modifyformCreateKeybox","POST")
           .then(function (res){
             res=JSON.parse(res);
@@ -1144,7 +1144,7 @@ var LayoutKeyboxesManager = ({
       trydeletegridKeybox(){
         var that=this;
         
-        AjaxDHX.get("/KeyboxManage/formKeyboxTryInsert")
+        AjaxDHX.get("/KeyboxManage/formKeyboxTryInsert",{token:localStorage.getItem("token")})
         .then(function(res){
           switch(res.type){
             case "error":
@@ -1168,7 +1168,7 @@ var LayoutKeyboxesManager = ({
               else{
               content = content.row;
               that.gridKeybox.selection.removeCell();
-              AjaxDHX.get("/KeyboxManage/deleteCreateKeybox",{keyboxid:content['keyboxid']}).then(function(res){
+              AjaxDHX.get("/KeyboxManage/deleteCreateKeybox",{keyboxid:content['keyboxid'],token:localStorage.getItem("token")}).then(function(res){
                 switch(res.type){
                   case "error":
                     AlertDHX({
@@ -1194,7 +1194,7 @@ var LayoutKeyboxesManager = ({
       tryconservegridKeybox(obj){
         var that= this;
         // console.log(obj);
-        AjaxDHX.get("/KeyboxManage/tryConserveKeybox",{keyboxid:obj.keyboxid})
+        AjaxDHX.get("/KeyboxManage/tryConserveKeybox",{keyboxid:obj.keyboxid,token:localStorage.getItem("token")})
         .then(function (res){
           switch(res.type){
             case "error":
@@ -1223,7 +1223,7 @@ var LayoutKeyboxesManager = ({
       windowKeyboxesConserve_event(){},
       windowKeyboxesConserve_reload(obj){
         var that= this;
-        AjaxDHX.get("/KeyboxManage/groupsConserveKeybox").then(function(res){
+        AjaxDHX.get("/KeyboxManage/groupsConserveKeybox",{token:localStorage.getItem("token")}).then(function(res){
           that.borrowable=res;
           that.formKeyboxesConserve=that.formKeyboxesConserve_create();
           that.formKeyboxesConserve_event();
@@ -1294,6 +1294,12 @@ var LayoutKeyboxesManager = ({
               type: "input",
               hidden: true,
             },
+            {
+              id: "token",
+              name: "token",
+              type: "input",
+              hidden: true,
+            },
           ],
         };
         
@@ -1304,7 +1310,7 @@ var LayoutKeyboxesManager = ({
         var myform = this.formKeyboxesConserve;
         var that = this;
         myform.getItem("ok").events.on("click",function(ev){
-          console.log('click')
+          myform.getItem("token").setValue(localStorage.getItem("token"));
           myform.send("/KeyboxManage/conserveKeybox","POST")
           .then(function (res){
             res=JSON.parse(res);
@@ -1345,7 +1351,7 @@ var LayoutKeyboxesManager = ({
       },
       tryinsertgridhook(){
         var that=this;
-        AjaxDHX.get("/KeyboxManage/formHookTryInsert",{keyboxid:that.tmp_hook})
+        AjaxDHX.get("/KeyboxManage/formHookTryInsert",{keyboxid:that.tmp_hook,token:localStorage.getItem("token")})
         .then(function (res){
           switch(res.type){
             case "error":
@@ -1448,6 +1454,12 @@ var LayoutKeyboxesManager = ({
               type: "input",
               hidden: true,
             },
+            {
+              id: "token",
+              name: "token",
+              type: "input",
+              hidden: true,
+            },
           ],
         };
         var myform = new FormDHX(null,myform);
@@ -1458,6 +1470,7 @@ var LayoutKeyboxesManager = ({
         var that= this;
         myform.getItem("ok").events.on("click",function(ev){
           myform.getItem("keyboxid").setValue(that.tmp_hook);
+          myform.getItem("token").setValue(localStorage.getItem("token"));
           myform.send("/KeyboxManage/insertformCreateHook","POST")
           .then(function (res){
             res=JSON.parse(res);
@@ -1485,7 +1498,7 @@ var LayoutKeyboxesManager = ({
       formHookInsert_reload(){},
       trymodifygridHook(){
         var that=this;
-        AjaxDHX.get("/KeyboxManage/formHookTryInsert",{keyboxid:that.tmp_hook})
+        AjaxDHX.get("/KeyboxManage/formHookTryInsert",{keyboxid:that.tmp_hook,token:localStorage.getItem("token")})
         .then(function (res){
           switch(res.type){
             case "error":
@@ -1607,6 +1620,12 @@ var LayoutKeyboxesManager = ({
               type: "input",
               hidden: true,
             },
+            {
+              id: "token",
+              name: "token",
+              type: "input",
+              hidden: true,
+            },
           ],
         };
         var myform = new FormDHX(null,myform);
@@ -1616,6 +1635,7 @@ var LayoutKeyboxesManager = ({
         var myform=this.formHookModify;
         var that=this;
         myform.getItem("ok").events.on("click",function(ev){
+          myform.getItem("token").setValue(localStorage.getItem("token"));
           myform.send("/KeyboxManage/modifyformCreateHook","POST")
           .then(function (res){
             res=JSON.parse(res);
@@ -1652,7 +1672,7 @@ var LayoutKeyboxesManager = ({
       },
       trydeletegridhook(){
         var that=this;
-        AjaxDHX.get("/KeyboxManage/formHookTryInsert",{keyboxid:that.tmp_hook})
+        AjaxDHX.get("/KeyboxManage/formHookTryInsert",{keyboxid:that.tmp_hook,token:localStorage.getItem("token")})
         .then(function (res){
           switch(res.type){
             case "error":
@@ -1676,7 +1696,7 @@ var LayoutKeyboxesManager = ({
                 content=content.row;
                 that.gridhook.selection.removeCell();
                 console.log(content);
-                AjaxDHX.get("/KeyboxManage/deleteCreateHook",{hookid:content['id']})
+                AjaxDHX.get("/KeyboxManage/deleteCreateHook",{hookid:content['id'],token:localStorage.getItem("token")})
                 .then(function(res){
                   switch(res.type){
                     case "error":

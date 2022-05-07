@@ -24,11 +24,8 @@ use Firebase\JWT\JWT;
 
 Route::get('/', function () {
     return view('app');
-})->middleware('logincheck');
-Route::get('/dbtest','HomeController@dbTest');
-Route::get('/keystates','HomeController@keystates');//查看钥匙
-Route::get('/testdata','HomeController@procdata1');//发送学号和钥匙箱，记录借还的人
-Route::get('/updatekeystates','HomeController@updatekeys');//看哪个钥匙状态变了，完善记录
+});
+
 
 //借还钥匙模块
 Route::get('/borrowreturntreefirst','BorrowReturn\TreeKeyboxesBorrowReturnController@action');//钥匙箱树
@@ -75,19 +72,15 @@ Route::get('/KeyWarehouse/formgethooks','KeyWarehouse\ConserveKeyController@form
 Route::get('/KeyWarehouse/tryhook','KeyWarehouse\ConserveKeyController@can');//验证权限:钥匙管理员
 Route::post('/KeyWarehouse/addhook','KeyWarehouse\ConserveKeyController@action');//匹配挂钩
 // 返回认证系统主⻚
-Route::get('/xauth', function () {
+/*Route::get('/xauth', function () {
     if (!env('APP_DEBUG')) {
         return redirect(env('MIX_SERVER_URL') );
     }
     return redirect('/');
  });
-Route::prefix('secret')->group(function () {
-    Route::get('login/{jwt}', [ClientAuthLoginController::class, 'action']);
-    Route::get('logout/{jwt}', [ClientAuthLogoutController::class, 'action']);
-});
 
 Route::get('/users/getinfo',function(){
-    
+
     return response([
         'msgid'=>Auth::check()?200:201,
         'msg'=>Auth::check()?'获取用户信息成功!':'获取用户信息失败!',
@@ -99,7 +92,7 @@ Route::get('/users/getinfo',function(){
             'url'=>('APP_DEBUG')?'':env('MIX_SERVER_URL'),
         ]
     ]);
-});
+});*/
 
 Route::get('/users/auth',function(){
     $id=Auth::id();
@@ -124,3 +117,8 @@ Route::get('/users/auth',function(){
 //硬件
 Route::get('/hardware/action1','Hardware\HardwareController@action1');
 Route::get('/hardware/action2','Hardware\HardwareController@action2');
+
+//登录
+Route::post("/auth/login",'AuthController@login');
+Route::get("/auth/user",'AuthController@user');
+Route::post("/auth/logout",'AuthController@logout');
